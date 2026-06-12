@@ -1,0 +1,18 @@
+---
+title: "Public REST API"
+description: "Assign agents and send messages from your own systems."
+---
+
+We're launching the **Adraa Inbox public REST API**. You can now drive your inbox from your own systems — CRMs, internal tools, automations.
+
+## New
+
+- **Public REST API.** A versioned REST API at `https://api.inbox.adraa.ai`, authenticated with workspace API tokens. See the [API introduction](/api-reference/introduction).
+- **Workspace API tokens.** Workspace admins can create and manage tokens in **Settings → API**. Follow the [authentication guide](/authentication) to set one up.
+- **Verify token endpoint.** Confirm a token works before wiring up an integration with `GET /api/v1/me`.
+- **Assign an agent.** Programmatically assign teammates — or the workspace AI agent — to a conversation with `POST /api/v1/conversations/{conversationId}/assign`. Rate limited at 60 requests per minute.
+- **Send messages.** Post messages into a conversation from your own systems with `POST /api/v1/conversations/{conversationId}/messages`.
+
+## Get started
+
+New to the API? Start with the [quickstart](/quickstart) to make your first authenticated request in a few minutes.
