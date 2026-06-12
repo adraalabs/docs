@@ -1,0 +1,18 @@
+---
+title: "Manage agents via the API"
+description: "List, add, update, and remove workspace agents programmatically."
+---
+
+You can now manage the agents in your workspace through the [Adraa Inbox API](/api-reference/introduction) — useful for syncing teammates from your HR system, onboarding tools, or internal admin scripts.
+
+## New
+
+- **List agents.** Fetch every active agent in your workspace, including the workspace AI agent, with `GET /api/v1/agents`. Use it to look up agent IDs before assigning conversations.
+- **Add an agent.** Invite a new teammate by email and display name with `POST /api/v1/agents`.
+- **Get an agent.** Look up a single agent's details with `GET /api/v1/agents/{agentId}`.
+- **Update an agent.** Change an agent's display name or role with `PATCH /api/v1/agents/{agentId}`.
+- **Remove an agent.** Revoke workspace access with `DELETE /api/v1/agents/{agentId}`. The endpoint blocks removing the last admin so you can't lock yourself out.
+
+## Get started
+
+Generate a workspace API token from **Settings → API** and follow the [authentication guide](/authentication) to make your first call.
