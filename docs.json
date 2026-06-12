@@ -23,14 +23,29 @@
         "openapi": "/api-reference/openapi.json",
         "pages": [
           "api-reference/introduction",
-          "GET /api/v1/me",
-          "GET /api/v1/agents",
-          "POST /api/v1/agents",
-          "GET /api/v1/agents/{agentId}",
-          "PATCH /api/v1/agents/{agentId}",
-          "DELETE /api/v1/agents/{agentId}",
-          "POST /api/v1/conversations/{conversationId}/assign",
-          "POST /api/v1/conversations/{conversationId}/messages"
+          {
+            "group": "Tokens",
+            "pages": [
+              "GET /api/v1/me"
+            ]
+          },
+          {
+            "group": "Agents",
+            "pages": [
+              "GET /api/v1/agents",
+              "POST /api/v1/agents",
+              "GET /api/v1/agents/{agentId}",
+              "PATCH /api/v1/agents/{agentId}",
+              "DELETE /api/v1/agents/{agentId}"
+            ]
+          },
+          {
+            "group": "Conversations",
+            "pages": [
+              "POST /api/v1/conversations/{conversationId}/assign",
+              "POST /api/v1/conversations/{conversationId}/messages"
+            ]
+          }
         ]
       },
       {
