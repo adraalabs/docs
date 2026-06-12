@@ -27,6 +27,12 @@
           "POST /api/v1/conversations/{conversationId}/assign",
           "POST /api/v1/conversations/{conversationId}/messages"
         ]
+      },
+      {
+        "group": "Changelog",
+        "pages": [
+          "changelog/2026-06-12"
+        ]
       }
     ]
   },
