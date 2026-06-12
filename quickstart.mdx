@@ -1,47 +1,119 @@
 ---
 title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+description: "Assign an agent and send your first message through the API in a few minutes."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+This guide takes you from zero to sending a message in a conversation through the API.
 
 ## Prerequisites
 
-Before you begin, you must have:
-
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
+- An Adraa Inbox workspace with at least one conversation
+- An admin role in the workspace, or an API token from your admin
 
 ## Get started
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Create an API token">
+    In the agent console, go to **Settings → API**, select **Create token**,
+    and copy the token — it's shown only once. See
+    [Authentication](/authentication) for details.
+
+    Export it in your shell so the examples below work as-is:
 
     ```bash
-    npm install your-package
+    export ADRAA_API_TOKEN="adraa_..."
     ```
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
 
+  <Step title="Verify the token">
     ```bash
-    your-cli init
+    curl https://api.inbox.adraa.ai/api/v1/me \
+      -H "Authorization: Bearer $ADRAA_API_TOKEN"
+    ```
+
+    ```json Response
+    {
+      "company": { "id": "cmbxgvq1e0000ph01a2b3c4d5", "name": "acme" },
+      "token": { "id": "cmbxh1k3a0001ph01e6f7g8h9", "name": "CRM integration" }
+    }
     ```
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
+
+  <Step title="Find a conversation ID">
+    Open any conversation in the agent console. The conversation ID is the
+    last segment of the URL:
+
+    ```text
+    https://app.inbox.adraa.ai/acme/conversations/cmbxgz9pq0003ph01m4n5o6p7
+    ```
+  </Step>
+
+  <Step title="Assign an agent">
+    Assign an agent to the conversation. Use a member's agent ID, or pass
+    `ai` to assign the workspace's AI agent:
 
     ```bash
-    your-cli start
+    curl -X POST https://api.inbox.adraa.ai/api/v1/conversations/cmbxgz9pq0003ph01m4n5o6p7/assign \
+      -H "Authorization: Bearer $ADRAA_API_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{"agentId": "cmbxgwq1e0000ph01i0j1k2l3"}'
+    ```
+
+    ```json Response
+    {
+      "success": true,
+      "conversationId": "cmbxgz9pq0003ph01m4n5o6p7",
+      "assignment": {
+        "agentId": "cmbxgwq1e0000ph01i0j1k2l3",
+        "agentNickname": "sara",
+        "assignedAt": "2026-06-12T10:30:00.000Z"
+      }
+    }
+    ```
+
+    The assignment appears in the agent console immediately.
+  </Step>
+
+  <Step title="Send a message">
+    Send a message to the conversation. It's delivered on the conversation's
+    channel — web chat, WhatsApp, or email — and shows in the thread as sent
+    by **API**:
+
+    ```bash
+    curl -X POST https://api.inbox.adraa.ai/api/v1/conversations/cmbxgz9pq0003ph01m4n5o6p7/messages \
+      -H "Authorization: Bearer $ADRAA_API_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{"body": "Hi! Your order has shipped and should arrive on Friday."}'
+    ```
+
+    ```json Response
+    {
+      "message": {
+        "id": "cmbxh2k3a0001ph01q8r9s0t1",
+        "conversationId": "cmbxgz9pq0003ph01m4n5o6p7",
+        "senderType": "agent",
+        "body": "Hi! Your order has shipped and should arrive on Friday.",
+        "status": "sent",
+        "createdAt": "2026-06-12T10:31:12.000Z",
+        "sender": { "id": "api:cmbxh1k3a0001ph01e6f7g8h9", "nickname": "API", "company": "acme", "role": "automation" }
+      }
+    }
     ```
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+<Check>
+  The message shows up in the conversation thread in the agent console and is
+  delivered to the customer on their channel.
+</Check>
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+## Next steps
+
+<Columns cols={2}>
+  <Card title="API reference" icon="code" href="/api-reference/introduction">
+    Full request and response details for every endpoint.
+  </Card>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Token management, revocation, and security practices.
+  </Card>
+</Columns>

@@ -1,0 +1,79 @@
+---
+title: "API introduction"
+sidebarTitle: "Introduction"
+description: "Base URL, authentication, errors, and rate limits for the Adraa Inbox API."
+---
+
+The Adraa Inbox API is a REST API served over HTTPS. Requests and responses use JSON.
+
+## Base URL
+
+```text
+https://api.inbox.adraa.ai
+```
+
+## Authentication
+
+Every request requires a workspace API token in the `Authorization` header:
+
+```bash
+curl https://api.inbox.adraa.ai/api/v1/me \
+  -H "Authorization: Bearer adraa_..."
+```
+
+Workspace admins create tokens in **Settings → API**. See [Authentication](/authentication) for the full setup guide.
+
+## Errors
+
+All errors share one envelope:
+
+```json
+{
+  "error": {
+    "code": "CONVERSATION_NOT_FOUND",
+    "message": "Conversation not found"
+  }
+}
+```
+
+Validation failures include field-level `details`:
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid request data",
+    "details": [{ "field": "body", "message": "Message body cannot be empty" }]
+  }
+}
+```
+
+Common codes:
+
+| Status | Code | Meaning |
+| --- | --- | --- |
+| 400 | `VALIDATION_ERROR` | The request body failed validation. Check `details`. |
+| 400 | `WHATSAPP_SERVICE_WINDOW_CLOSED` | WhatsApp's 24-hour reply window has closed for this conversation. |
+| 401 | `MISSING_TOKEN` | No `Authorization` header was sent. |
+| 401 | `INVALID_API_TOKEN` | The token is unknown or has been revoked. |
+| 403 | `COMPANY_MISMATCH` | The agent belongs to a different workspace than the conversation. |
+| 404 | `CONVERSATION_NOT_FOUND` | The conversation does not exist in your workspace. |
+| 429 | `RATE_LIMIT_EXCEEDED` | Too many requests. Back off and retry. |
+
+<Note>
+  A `404` is returned for conversations that exist but belong to another
+  workspace. The API never reveals whether a resource exists outside the
+  token's workspace.
+</Note>
+
+## Rate limits
+
+Write endpoints (assign, send message) accept 60 requests per minute. All other endpoints accept 100 requests per minute per IP. Exceeding a limit returns `429 RATE_LIMIT_EXCEEDED`.
+
+## IDs
+
+Resources use cuid identifiers like `cmbxgz9pq0003ph01m4n5o6p7`. To find a conversation's ID, open it in the agent console — it's the last segment of the URL:
+
+```text
+https://app.inbox.adraa.ai/<workspace>/conversations/<conversationId>
+```

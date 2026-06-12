@@ -1,37 +1,34 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "Adraa Inbox",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#0A0A0A",
+    "light": "#E4E4E7",
+    "dark": "#0A0A0A"
   },
   "favicon": "/favicon.svg",
   "navigation": {
     "pages": [
       {
-        "group": "Getting Started",
+        "group": "Getting started",
         "pages": [
           "index",
-          "quickstart"
+          "quickstart",
+          "authentication"
+        ]
+      },
+      {
+        "group": "API reference",
+        "openapi": "/api-reference/openapi.json",
+        "pages": [
+          "api-reference/introduction",
+          "GET /api/v1/me",
+          "POST /api/v1/conversations/{conversationId}/assign",
+          "POST /api/v1/conversations/{conversationId}/messages"
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
     "light": "/logo/light.svg",
@@ -41,32 +38,39 @@
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:support@adraa.ai"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "label": "Open Adraa Inbox",
+      "href": "https://app.inbox.adraa.ai"
     }
   },
   "contextual": {
     "options": [
       "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
+      "view"
     ]
   },
   "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+    "links": [
+      {
+        "items": [
+          {
+            "label": "Adraa Inbox",
+            "href": "https://inbox.adraa.ai"
+          },
+          {
+            "label": "Privacy",
+            "href": "https://inbox.adraa.ai/privacy"
+          },
+          {
+            "label": "Terms",
+            "href": "https://inbox.adraa.ai/terms"
+          }
+        ]
+      }
+    ]
   }
 }

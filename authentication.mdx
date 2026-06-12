@@ -1,0 +1,72 @@
+---
+title: "Authentication"
+description: "Create a workspace API token and use it to authenticate API requests."
+---
+
+The Adraa Inbox API authenticates with workspace API tokens. A token grants full API access to one workspace — it can read and act on every conversation in that workspace, so treat it like a password.
+
+## Create an API token
+
+<Info>
+  Only workspace admins can create and revoke API tokens.
+</Info>
+
+<Steps>
+  <Step title="Open the API settings">
+    In the agent console, go to **Settings → API** (under the Workspace
+    section of the settings sidebar).
+  </Step>
+  <Step title="Create a token">
+    Select **Create token** and name it after the system that will use it,
+    for example `CRM integration` or `Order notifications`. Names make it
+    clear what breaks when a token is revoked later.
+  </Step>
+  <Step title="Copy the token">
+    The full token is shown once, immediately after creation. Copy it and
+    store it in your secret manager. After you close the dialog, only the
+    token's prefix (for example `adraa_1a2b3c4d…`) remains visible.
+  </Step>
+  <Step title="Verify it works">
+    Call the verify endpoint with your new token:
+
+    ```bash
+    curl https://api.inbox.adraa.ai/api/v1/me \
+      -H "Authorization: Bearer adraa_..."
+    ```
+
+    A valid token returns your workspace and token details:
+
+    ```json
+    {
+      "company": { "id": "cmbxgvq1e0000ph01a2b3c4d5", "name": "acme" },
+      "token": { "id": "cmbxh1k3a0001ph01e6f7g8h9", "name": "CRM integration" }
+    }
+    ```
+  </Step>
+</Steps>
+
+## Use the token
+
+Send the token as a bearer token in the `Authorization` header on every request:
+
+```text
+Authorization: Bearer adraa_4f3c2b1a...
+```
+
+Requests without a valid token return `401` with the code `MISSING_TOKEN` or `INVALID_API_TOKEN`.
+
+## Revoke a token
+
+Revoke a token from the same **Settings → API** page. Revocation is immediate: the next request with that token fails with `401 INVALID_API_TOKEN`. Revoked tokens stay in the list for audit purposes and cannot be re-enabled — create a new token instead.
+
+## Keep tokens safe
+
+<Warning>
+  Anyone with a token can message your customers and reassign conversations.
+  Never commit tokens to source control or expose them in client-side code.
+</Warning>
+
+- Store tokens in environment variables or a secret manager, and call the API only from your backend.
+- Create one token per integration so each can be revoked independently.
+- Revoke tokens you no longer use. The **last used** timestamp on the settings page shows which tokens are still active.
+- If a token leaks, revoke it immediately and create a replacement.

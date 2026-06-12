@@ -1,0 +1,430 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Adraa Inbox API",
+    "description": "Public REST API for Adraa Inbox. Assign agents to conversations and send messages from your own systems. Authenticate every request with a workspace API token.",
+    "version": "1.0.0",
+    "contact": {
+      "email": "support@adraa.ai"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.inbox.adraa.ai",
+      "description": "Production"
+    }
+  ],
+  "security": [
+    {
+      "apiToken": []
+    }
+  ],
+  "paths": {
+    "/api/v1/me": {
+      "get": {
+        "summary": "Verify token",
+        "description": "Returns the workspace and token associated with the API token used to authenticate the request. Use this endpoint to confirm a token works before wiring up an integration.",
+        "operationId": "getMe",
+        "responses": {
+          "200": {
+            "description": "Token is valid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "company": {
+                      "type": "object",
+                      "description": "The workspace this token belongs to.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Workspace ID.",
+                          "example": "cmbxgvq1e0000ph01a2b3c4d5"
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "Workspace name.",
+                          "example": "acme"
+                        }
+                      }
+                    },
+                    "token": {
+                      "type": "object",
+                      "description": "The API token used for this request.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Token ID.",
+                          "example": "cmbxh1k3a0001ph01e6f7g8h9"
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "Token name set when it was created.",
+                          "example": "CRM integration"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{conversationId}/assign": {
+      "post": {
+        "summary": "Assign an agent",
+        "description": "Assigns an agent to a conversation. The agent must be an active member of the workspace. Pass `ai` as the `agentId` to assign the workspace's AI agent. Reassigning replaces the current assignment.\n\nRate limit: 60 requests per minute.",
+        "operationId": "assignConversation",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/conversationId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["agentId"],
+                "properties": {
+                  "agentId": {
+                    "type": "string",
+                    "description": "ID of the agent to assign, or `ai` to assign the workspace's AI agent.",
+                    "example": "cmbxgwq1e0000ph01i0j1k2l3"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Agent assigned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "conversationId": {
+                      "type": "string",
+                      "example": "cmbxgz9pq0003ph01m4n5o6p7"
+                    },
+                    "assignment": {
+                      "type": "object",
+                      "description": "The resulting assignment.",
+                      "properties": {
+                        "agentId": {
+                          "type": "string",
+                          "example": "cmbxgwq1e0000ph01i0j1k2l3"
+                        },
+                        "agentNickname": {
+                          "type": "string",
+                          "example": "sara"
+                        },
+                        "assignedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2026-06-12T10:30:00.000Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request — unknown agent or invalid body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_AGENT",
+                    "message": "Invalid agent"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Agent belongs to a different workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "COMPANY_MISMATCH",
+                    "message": "Agent cannot be assigned to different company conversation"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/ConversationNotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{conversationId}/messages": {
+      "post": {
+        "summary": "Send a message",
+        "description": "Sends a message to a conversation. The message is delivered on the conversation's channel — web chat, WhatsApp, or email — and appears in the conversation thread as sent by **API**. Sending a message does not change the conversation's assignment.\n\nRate limit: 60 requests per minute.",
+        "operationId": "sendMessage",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/conversationId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["body"],
+                "properties": {
+                  "body": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "description": "Message text. Maximum 2000 characters.",
+                    "example": "Hi! Your order has shipped and should arrive on Friday."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Message sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "$ref": "#/components/schemas/Message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "WhatsApp reply window closed or invalid body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "WHATSAPP_SERVICE_WINDOW_CLOSED",
+                    "message": "WhatsApp's 24-hour reply window is closed. Send an approved template to reopen the conversation."
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/ConversationNotFound"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apiToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Workspace API token created in Settings → API. Tokens start with `adraa_`."
+      }
+    },
+    "parameters": {
+      "conversationId": {
+        "name": "conversationId",
+        "in": "path",
+        "required": true,
+        "description": "ID of the conversation. Visible in the console URL when a conversation is open: `app.inbox.adraa.ai/<workspace>/conversations/<conversationId>`.",
+        "schema": {
+          "type": "string",
+          "example": "cmbxgz9pq0003ph01m4n5o6p7"
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Missing, invalid, or revoked API token",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": {
+                "code": "INVALID_API_TOKEN",
+                "message": "Invalid or revoked API token"
+              }
+            }
+          }
+        }
+      },
+      "ConversationNotFound": {
+        "description": "Conversation does not exist or belongs to another workspace",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": {
+                "code": "CONVERSATION_NOT_FOUND",
+                "message": "Conversation not found"
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Machine-readable error code."
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable explanation."
+              },
+              "details": {
+                "description": "Field-level details for validation errors.",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Message ID.",
+            "example": "cmbxh2k3a0001ph01q8r9s0t1"
+          },
+          "conversationId": {
+            "type": "string",
+            "example": "cmbxgz9pq0003ph01m4n5o6p7"
+          },
+          "senderId": {
+            "type": "string",
+            "description": "Sender identifier. Messages sent through the API use `api:<tokenId>`.",
+            "example": "api:cmbxh1k3a0001ph01e6f7g8h9"
+          },
+          "senderType": {
+            "type": "string",
+            "example": "agent"
+          },
+          "body": {
+            "type": "string",
+            "example": "Hi! Your order has shipped and should arrive on Friday."
+          },
+          "replyToMessageId": {
+            "type": ["string", "null"],
+            "example": null
+          },
+          "replyQuote": {
+            "type": ["object", "null"],
+            "example": null
+          },
+          "metadata": {
+            "type": ["object", "null"],
+            "description": "Channel delivery metadata. For email conversations this includes the From/To addresses and SES message ID.",
+            "example": null
+          },
+          "status": {
+            "type": "string",
+            "enum": ["sent", "delivered", "read", "failed", "deleted"],
+            "description": "Delivery status. `failed` means the message was stored but could not be delivered on the conversation's channel (for example, the workspace has no verified email domain).",
+            "example": "sent"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-12T10:30:00.000Z"
+          },
+          "attachments": {
+            "type": "array",
+            "description": "Always empty for API-sent messages; attachments are not yet supported.",
+            "items": {
+              "type": "object"
+            },
+            "example": []
+          },
+          "sender": {
+            "type": "object",
+            "description": "How the sender is displayed in the conversation. API-sent messages show as \"API\".",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "api:cmbxh1k3a0001ph01e6f7g8h9"
+              },
+              "nickname": {
+                "type": "string",
+                "example": "API"
+              },
+              "company": {
+                "type": "string",
+                "example": "acme"
+              },
+              "role": {
+                "type": "string",
+                "example": "automation"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
