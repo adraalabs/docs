@@ -61,6 +61,7 @@ Common codes:
 | 403 | `COMPANY_MISMATCH` | The agent belongs to a different workspace than the conversation. |
 | 404 | `CONVERSATION_NOT_FOUND` | The conversation does not exist in your workspace. |
 | 404 | `AGENT_NOT_FOUND` | The agent is not an active member of your workspace. |
+| 404 | `CONTACT_NOT_FOUND` | The contact has never messaged your workspace. |
 | 409 | `AGENT_ALREADY_MEMBER` | The email already belongs to a workspace member. |
 | 409 | `NICKNAME_TAKEN` | The display name is already in use across Adraa Inbox. |
 | 429 | `RATE_LIMIT_EXCEEDED` | Too many requests. Back off and retry. |
@@ -73,7 +74,7 @@ Common codes:
 
 ## Rate limits
 
-Write endpoints (assign, send message) accept 60 requests per minute. All other endpoints accept 100 requests per minute per IP. Exceeding a limit returns `429 RATE_LIMIT_EXCEEDED`.
+Write endpoints are rate limited — 60 requests per minute for conversation writes (assign, send message) and 30 per minute for agent and contact writes; each endpoint's reference page lists its limit. All other endpoints accept 100 requests per minute per IP. Exceeding a limit returns `429 RATE_LIMIT_EXCEEDED`.
 
 ## IDs
 

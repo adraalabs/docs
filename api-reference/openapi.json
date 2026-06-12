@@ -365,6 +365,398 @@
         }
       }
     },
+    "/api/v1/contacts": {
+      "get": {
+        "summary": "List contacts",
+        "description": "Lists everyone who has messaged the workspace, one row per contact, newest activity first. Mirrors the console's Contacts page: the same search, country, channel, assignment, and open-conversation filters, plus facet counts for building filter UIs.\n\nContacts are created automatically when a customer first messages the workspace — they cannot be created or deleted through the API.",
+        "operationId": "listContacts",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Matches against the contact's name, email, and phone.",
+            "schema": {
+              "type": "string",
+              "maxLength": 160,
+              "example": "sara"
+            }
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "description": "ISO-3166 alpha-2 country code, derived from the contact's phone number. Use the `facets.countries` of an unfiltered request to see which codes are present.",
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 2,
+              "example": "SA"
+            }
+          },
+          {
+            "name": "channel",
+            "in": "query",
+            "description": "Only contacts who have a conversation on this channel.",
+            "schema": {
+              "type": "string",
+              "enum": ["web", "whatsapp", "facebook", "telegram", "sms", "email"]
+            }
+          },
+          {
+            "name": "assignment",
+            "in": "query",
+            "description": "`assigned` — the contact's latest conversation has an agent; `unassigned` — it does not.",
+            "schema": {
+              "type": "string",
+              "enum": ["assigned", "unassigned"]
+            }
+          },
+          {
+            "name": "hasOpen",
+            "in": "query",
+            "description": "When `true`, only contacts with at least one open conversation.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "1-based page number. Clamped to the last page when out of range.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "Contacts per page.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One page of contacts plus facet counts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "contacts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Contact"
+                      }
+                    },
+                    "total": {
+                      "type": "integer",
+                      "description": "Contacts matching the filters, across all pages.",
+                      "example": 124
+                    },
+                    "page": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "pageSize": {
+                      "type": "integer",
+                      "example": 20
+                    },
+                    "totalPages": {
+                      "type": "integer",
+                      "example": 7
+                    },
+                    "facets": {
+                      "type": "object",
+                      "description": "Counts across the whole directory (unfiltered), for building filter dropdowns.",
+                      "properties": {
+                        "countries": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "code": {
+                                "type": "string",
+                                "example": "SA"
+                              },
+                              "count": {
+                                "type": "integer",
+                                "example": 80
+                              }
+                            }
+                          }
+                        },
+                        "channels": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "platform": {
+                                "type": "string",
+                                "example": "whatsapp"
+                              },
+                              "count": {
+                                "type": "integer",
+                                "example": 95
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/contacts/{contactId}": {
+      "get": {
+        "summary": "Get a contact",
+        "description": "Returns a contact's full profile: identity and custom fields, the automation flows that ran for them, and the internal notes agents left about them.",
+        "operationId": "getContact",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/contactId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The contact's profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "contact": {
+                      "$ref": "#/components/schemas/ContactProfile"
+                    },
+                    "flows": {
+                      "type": "array",
+                      "description": "Automation flow runs for this contact, newest first (up to 25).",
+                      "items": {
+                        "$ref": "#/components/schemas/FlowRun"
+                      }
+                    },
+                    "notes": {
+                      "type": "array",
+                      "description": "Internal agent notes, newest first. Never visible to the customer.",
+                      "items": {
+                        "$ref": "#/components/schemas/ContactNote"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/ContactNotFound"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update a contact",
+        "description": "Updates a contact's display name and/or custom fields — useful for enriching contacts from a CRM. Custom fields are merged key by key: provided keys overwrite, a `null` value removes the key, and keys you don't send are kept. At least one of `name` or `customFields` is required.\n\nRate limit: 30 requests per minute.",
+        "operationId": "updateContact",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/contactId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 120,
+                    "description": "New display name.",
+                    "example": "Sara Al-Harbi"
+                  },
+                  "customFields": {
+                    "type": "object",
+                    "description": "Keys to merge into the contact's custom fields (max 50 per request). Values may be strings (max 500 chars), numbers, booleans, or `null` to remove the key.",
+                    "additionalProperties": {
+                      "type": ["string", "number", "boolean", "null"]
+                    },
+                    "example": {
+                      "crmId": "LEAD-2041",
+                      "plan": "pro",
+                      "legacyField": null
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated contact profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "contact": {
+                      "$ref": "#/components/schemas/ContactProfile"
+                    },
+                    "flows": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/FlowRun"
+                      }
+                    },
+                    "notes": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ContactNote"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body — neither name nor customFields provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/ContactNotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations": {
+      "get": {
+        "summary": "List conversations",
+        "description": "Lists the workspace's conversations, most recently active first, with cursor pagination. Filter by status, channel, assigned agent, or contact, and search with `q` the same way console search works (subject, customer name/email, and message bodies).",
+        "operationId": "listConversations",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "`open` — not closed; `closed`; `unassigned` — open and without an assigned agent; `all` — everything.",
+            "schema": {
+              "type": "string",
+              "enum": ["open", "closed", "unassigned", "all"],
+              "default": "all"
+            }
+          },
+          {
+            "name": "channel",
+            "in": "query",
+            "description": "Only conversations on this channel.",
+            "schema": {
+              "type": "string",
+              "enum": ["web", "whatsapp", "facebook", "telegram", "sms", "email"]
+            }
+          },
+          {
+            "name": "agentId",
+            "in": "query",
+            "description": "Only conversations assigned to this agent (list agents with `GET /api/v1/agents`).",
+            "schema": {
+              "type": "string",
+              "example": "cmbxgwq1e0000ph01i0j1k2l3"
+            }
+          },
+          {
+            "name": "contactId",
+            "in": "query",
+            "description": "Only this contact's conversations (list contacts with `GET /api/v1/contacts`).",
+            "schema": {
+              "type": "string",
+              "example": "cmbxgy7kq0002ph01u2v3w4x5"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Search term. Matches the subject, the contact's name and email, and message bodies.",
+            "schema": {
+              "type": "string",
+              "maxLength": 160,
+              "example": "refund"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "The `nextCursor` from the previous page. Omit for the first page.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Conversations per page.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One page of conversations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "conversations": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Conversation"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": ["string", "null"],
+                      "description": "Pass as `cursor` to fetch the next page. `null` when this is the last page.",
+                      "example": "cmbxgz9pq0003ph01m4n5o6p7"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
     "/api/v1/conversations/{conversationId}/assign": {
       "post": {
         "summary": "Assign an agent",
@@ -568,10 +960,20 @@
         "name": "conversationId",
         "in": "path",
         "required": true,
-        "description": "ID of the conversation. Visible in the console URL when a conversation is open: `app.inbox.adraa.ai/<workspace>/conversations/<conversationId>`.",
+        "description": "ID of the conversation. Visible in the console URL when a conversation is open: `app.inbox.adraa.ai/<workspace>/conversations/<conversationId>`, or list conversations with `GET /api/v1/conversations`.",
         "schema": {
           "type": "string",
           "example": "cmbxgz9pq0003ph01m4n5o6p7"
+        }
+      },
+      "contactId": {
+        "name": "contactId",
+        "in": "path",
+        "required": true,
+        "description": "ID of the contact. List contacts with `GET /api/v1/contacts` to find it.",
+        "schema": {
+          "type": "string",
+          "example": "cmbxgy7kq0002ph01u2v3w4x5"
         }
       }
     },
@@ -619,6 +1021,22 @@
               "error": {
                 "code": "CONVERSATION_NOT_FOUND",
                 "message": "Conversation not found"
+              }
+            }
+          }
+        }
+      },
+      "ContactNotFound": {
+        "description": "Contact does not exist or has never messaged this workspace",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": {
+                "code": "CONTACT_NOT_FOUND",
+                "message": "Contact not found"
               }
             }
           }
@@ -696,6 +1114,314 @@
             "type": "string",
             "format": "date-time",
             "example": "2026-05-02T08:14:00.000Z"
+          }
+        }
+      },
+      "Contact": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Contact ID.",
+            "example": "cmbxgy7kq0002ph01u2v3w4x5"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name — the contact's name, or their phone/email when no name is known.",
+            "example": "Sara Al-Harbi"
+          },
+          "email": {
+            "type": ["string", "null"],
+            "description": "Email address, when known. `null` for contacts who only messaged via WhatsApp.",
+            "example": "sara@example.com"
+          },
+          "phone": {
+            "type": ["string", "null"],
+            "description": "E.164 phone number, when known.",
+            "example": "+966501234567"
+          },
+          "countryIso": {
+            "type": ["string", "null"],
+            "description": "ISO-3166 alpha-2 country code derived from the phone number.",
+            "example": "SA"
+          },
+          "channels": {
+            "type": "array",
+            "description": "Channels this contact has conversations on.",
+            "items": {
+              "type": "string",
+              "enum": ["web", "whatsapp", "facebook", "telegram", "sms", "email"]
+            },
+            "example": ["whatsapp", "web"]
+          },
+          "conversationId": {
+            "type": ["string", "null"],
+            "description": "The contact's most recently active conversation — use it to assign or message them.",
+            "example": "cmbxgz9pq0003ph01m4n5o6p7"
+          },
+          "conversationCount": {
+            "type": "integer",
+            "example": 3
+          },
+          "openCount": {
+            "type": "integer",
+            "description": "Conversations that are not closed.",
+            "example": 1
+          },
+          "lastActivityAt": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "example": "2026-06-12T10:30:00.000Z"
+          },
+          "assignedAgent": {
+            "type": ["object", "null"],
+            "description": "Agent assigned to the contact's latest conversation.",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "cmbxgwq1e0000ph01i0j1k2l3"
+              },
+              "nickname": {
+                "type": "string",
+                "example": "sara"
+              }
+            }
+          }
+        }
+      },
+      "ContactProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "cmbxgy7kq0002ph01u2v3w4x5"
+          },
+          "name": {
+            "type": "string",
+            "example": "Sara Al-Harbi"
+          },
+          "email": {
+            "type": ["string", "null"],
+            "example": "sara@example.com"
+          },
+          "phone": {
+            "type": ["string", "null"],
+            "example": "+966501234567"
+          },
+          "countryIso": {
+            "type": ["string", "null"],
+            "example": "SA"
+          },
+          "avatarUrl": {
+            "type": ["string", "null"],
+            "example": null
+          },
+          "channels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["whatsapp", "web"]
+          },
+          "conversationCount": {
+            "type": "integer",
+            "example": 3
+          },
+          "openCount": {
+            "type": "integer",
+            "example": 1
+          },
+          "firstContactAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the contact first messaged the workspace.",
+            "example": "2026-04-18T09:12:00.000Z"
+          },
+          "customFields": {
+            "type": "object",
+            "description": "Free-form key/value data attached to the contact — set by the chat widget or through `PATCH /api/v1/contacts/{contactId}`.",
+            "additionalProperties": true,
+            "example": {
+              "crmId": "LEAD-2041",
+              "plan": "pro"
+            }
+          }
+        }
+      },
+      "ContactNote": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "cmbxh3m2b0004ph01y6z7a8b9"
+          },
+          "body": {
+            "type": "string",
+            "example": "VIP customer — fast-track any shipping issues."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-10T14:02:00.000Z"
+          },
+          "agent": {
+            "type": "object",
+            "description": "The agent who wrote the note.",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "cmbxgwq1e0000ph01i0j1k2l3"
+              },
+              "nickname": {
+                "type": "string",
+                "example": "sara"
+              }
+            }
+          }
+        }
+      },
+      "FlowRun": {
+        "type": "object",
+        "properties": {
+          "runId": {
+            "type": "string",
+            "example": "cmbxh4n3c0005ph01c0d1e2f3"
+          },
+          "flowId": {
+            "type": "string",
+            "example": "cmbxh5o4d0006ph01g4h5i6j7"
+          },
+          "flowName": {
+            "type": "string",
+            "example": "Order status lookup"
+          },
+          "conversationId": {
+            "type": ["string", "null"],
+            "example": "cmbxgz9pq0003ph01m4n5o6p7"
+          },
+          "status": {
+            "type": "string",
+            "description": "Run status, e.g. `running`, `completed`, `failed`.",
+            "example": "completed"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-11T08:30:00.000Z"
+          },
+          "completedAt": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "example": "2026-06-11T08:31:12.000Z"
+          }
+        }
+      },
+      "Conversation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Conversation ID — use it to assign agents or send messages.",
+            "example": "cmbxgz9pq0003ph01m4n5o6p7"
+          },
+          "channel": {
+            "type": "string",
+            "enum": ["web", "whatsapp", "facebook", "telegram", "sms", "email"],
+            "example": "whatsapp"
+          },
+          "subject": {
+            "type": ["string", "null"],
+            "description": "Subject line, mainly for email conversations.",
+            "example": null
+          },
+          "status": {
+            "type": "string",
+            "description": "`open` or `closed`.",
+            "example": "open"
+          },
+          "contact": {
+            "type": "object",
+            "description": "The customer in this conversation.",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "cmbxgy7kq0002ph01u2v3w4x5"
+              },
+              "name": {
+                "type": "string",
+                "example": "Sara Al-Harbi"
+              },
+              "email": {
+                "type": ["string", "null"],
+                "example": "sara@example.com"
+              },
+              "phone": {
+                "type": ["string", "null"],
+                "example": "+966501234567"
+              }
+            }
+          },
+          "assignment": {
+            "type": ["object", "null"],
+            "description": "The assigned agent, or `null` when unassigned.",
+            "properties": {
+              "agentId": {
+                "type": "string",
+                "example": "cmbxgwq1e0000ph01i0j1k2l3"
+              },
+              "agentNickname": {
+                "type": "string",
+                "example": "sara"
+              },
+              "assignedAt": {
+                "type": "string",
+                "format": "date-time",
+                "example": "2026-06-12T10:30:00.000Z"
+              }
+            }
+          },
+          "lastMessage": {
+            "type": ["object", "null"],
+            "description": "The most recent non-system message.",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "cmbxh2k3a0001ph01q8r9s0t1"
+              },
+              "body": {
+                "type": "string",
+                "example": "Thanks, that fixed it!"
+              },
+              "senderId": {
+                "type": "string",
+                "example": "cmbxgy7kq0002ph01u2v3w4x5"
+              },
+              "senderType": {
+                "type": "string",
+                "enum": ["customer", "agent"],
+                "example": "customer"
+              },
+              "status": {
+                "type": "string",
+                "enum": ["sent", "delivered", "read", "failed", "deleted"],
+                "example": "read"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "example": "2026-06-12T10:29:00.000Z"
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-10T07:15:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-12T10:30:00.000Z"
           }
         }
       },

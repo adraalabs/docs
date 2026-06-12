@@ -1,0 +1,17 @@
+---
+title: "Contacts and conversation listing"
+description: "Browse your contacts directory and conversations through the API."
+---
+
+The API can now read your workspace the way the console does — list and filter contacts and conversations, fetch full contact profiles, and enrich contacts from your own systems.
+
+## New
+
+- **List contacts.** `GET /api/v1/contacts` returns everyone who has messaged your workspace, with the same filters as the console's Contacts page — search, country, channel, assigned/unassigned, and open-conversations-only — plus facet counts for building filter UIs.
+- **Contact profiles.** `GET /api/v1/contacts/{contactId}` returns a contact's identity and custom fields, the automation flows that ran for them, and the internal notes agents left about them.
+- **Update contacts.** `PATCH /api/v1/contacts/{contactId}` sets a contact's display name and merges custom fields — handy for CRM enrichment. Rate limited at 30 requests per minute.
+- **List conversations.** `GET /api/v1/conversations` lists conversations with cursor pagination and filters for status, channel, assigned agent, and contact, plus console-style search with `q`.
+
+## Notes
+
+- Contacts are created automatically when a customer first messages your workspace, so the API has no create or delete for them.

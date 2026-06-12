@@ -40,8 +40,17 @@
             ]
           },
           {
+            "group": "Contacts",
+            "pages": [
+              "GET /api/v1/contacts",
+              "GET /api/v1/contacts/{contactId}",
+              "PATCH /api/v1/contacts/{contactId}"
+            ]
+          },
+          {
             "group": "Conversations",
             "pages": [
+              "GET /api/v1/conversations",
               "POST /api/v1/conversations/{conversationId}/assign",
               "POST /api/v1/conversations/{conversationId}/messages"
             ]
@@ -51,6 +60,7 @@
       {
         "group": "Changelog",
         "pages": [
+          "changelog/2026-06-13",
           "changelog/2026-06-12-agent-management",
           "changelog/2026-06-12"
         ]
