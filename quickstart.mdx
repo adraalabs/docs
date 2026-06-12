@@ -48,9 +48,35 @@ This guide takes you from zero to sending a message in a conversation through th
     ```
   </Step>
 
+  <Step title="List your agents">
+    Fetch the workspace's agents to get the ID of the agent you want to
+    assign:
+
+    ```bash
+    curl https://api.inbox.adraa.ai/api/v1/agents \
+      -H "Authorization: Bearer $ADRAA_API_TOKEN"
+    ```
+
+    ```json Response
+    {
+      "agents": [
+        {
+          "id": "cmbxgwq1e0000ph01i0j1k2l3",
+          "email": "sara@acme.com",
+          "nickname": "sara",
+          "role": "admin",
+          "isOnline": true,
+          "lastSeen": "2026-06-12T10:25:00.000Z",
+          "createdAt": "2026-05-02T08:14:00.000Z"
+        }
+      ]
+    }
+    ```
+  </Step>
+
   <Step title="Assign an agent">
-    Assign an agent to the conversation. Use a member's agent ID, or pass
-    `ai` to assign the workspace's AI agent:
+    Assign an agent to the conversation using an ID from the previous step,
+    or pass `ai` to assign the workspace's AI agent:
 
     ```bash
     curl -X POST https://api.inbox.adraa.ai/api/v1/conversations/cmbxgz9pq0003ph01m4n5o6p7/assign \

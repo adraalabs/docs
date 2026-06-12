@@ -54,10 +54,15 @@ Common codes:
 | --- | --- | --- |
 | 400 | `VALIDATION_ERROR` | The request body failed validation. Check `details`. |
 | 400 | `WHATSAPP_SERVICE_WINDOW_CLOSED` | WhatsApp's 24-hour reply window has closed for this conversation. |
+| 400 | `LAST_ADMIN` | The change would leave the workspace without an admin. |
+| 400 | `AGENT_MANAGED` | The agent is managed by Adraa Inbox (the AI agent) and can't be changed. |
 | 401 | `MISSING_TOKEN` | No `Authorization` header was sent. |
 | 401 | `INVALID_API_TOKEN` | The token is unknown or has been revoked. |
 | 403 | `COMPANY_MISMATCH` | The agent belongs to a different workspace than the conversation. |
 | 404 | `CONVERSATION_NOT_FOUND` | The conversation does not exist in your workspace. |
+| 404 | `AGENT_NOT_FOUND` | The agent is not an active member of your workspace. |
+| 409 | `AGENT_ALREADY_MEMBER` | The email already belongs to a workspace member. |
+| 409 | `NICKNAME_TAKEN` | The display name is already in use across Adraa Inbox. |
 | 429 | `RATE_LIMIT_EXCEEDED` | Too many requests. Back off and retry. |
 
 <Note>

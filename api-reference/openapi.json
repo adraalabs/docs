@@ -76,6 +76,295 @@
         }
       }
     },
+    "/api/v1/agents": {
+      "get": {
+        "summary": "List agents",
+        "description": "Lists the active agents of the workspace, including the workspace AI agent when one exists. Use this to look up agent IDs for assignment.",
+        "operationId": "listAgents",
+        "responses": {
+          "200": {
+            "description": "Workspace agents",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "agents": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Agent"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add an agent",
+        "description": "Adds an agent to the workspace. If no Adraa Inbox account exists for the email, one is created — no invite email is sent; the person signs in at the console with a one-time code sent to that email. If an account already exists, it is added to the workspace with the given role (the existing display name is kept).\n\nRate limit: 30 requests per minute.",
+        "operationId": "createAgent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "The agent's sign-in email.",
+                    "example": "sara@acme.com"
+                  },
+                  "nickname": {
+                    "type": "string",
+                    "maxLength": 60,
+                    "description": "Display name, unique across Adraa Inbox. Generated from the email when omitted. Ignored if the email already has an account.",
+                    "example": "sara"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": ["agent", "admin"],
+                    "default": "agent",
+                    "description": "Workspace role."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Agent added to the workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "agent": {
+                      "$ref": "#/components/schemas/Agent"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "description": "Email already a member, or display name taken",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "alreadyMember": {
+                    "summary": "Email already belongs to a workspace member",
+                    "value": {
+                      "error": {
+                        "code": "AGENT_ALREADY_MEMBER",
+                        "message": "An agent with this email is already a member of the workspace"
+                      }
+                    }
+                  },
+                  "nicknameTaken": {
+                    "summary": "Display name already in use",
+                    "value": {
+                      "error": {
+                        "code": "NICKNAME_TAKEN",
+                        "message": "That display name is already in use"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/agents/{agentId}": {
+      "get": {
+        "summary": "Get an agent",
+        "description": "Returns one active agent of the workspace.",
+        "operationId": "getAgent",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/agentId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The agent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "agent": {
+                      "$ref": "#/components/schemas/Agent"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/AgentNotFound"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update an agent",
+        "description": "Updates an agent's workspace role and/or display name. The role is scoped to this workspace; the display name is the agent's global name across Adraa Inbox. At least one field is required.\n\nThe workspace must keep at least one admin, and platform-managed agents (the AI agent) cannot be modified.\n\nRate limit: 30 requests per minute.",
+        "operationId": "updateAgent",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/agentId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nickname": {
+                    "type": "string",
+                    "maxLength": 60,
+                    "description": "New display name, unique across Adraa Inbox.",
+                    "example": "sara"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": ["agent", "admin"],
+                    "description": "New workspace role."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated agent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "agent": {
+                      "$ref": "#/components/schemas/Agent"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Demoting the last admin, or a platform-managed agent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "LAST_ADMIN",
+                    "message": "The workspace must keep at least one admin"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/AgentNotFound"
+          },
+          "409": {
+            "description": "Display name already in use",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "NICKNAME_TAKEN",
+                    "message": "That display name is already in use"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove an agent",
+        "description": "Removes an agent from the workspace. Their Adraa Inbox account and message history remain; they simply lose access to this workspace. Re-adding the same email restores access.\n\nThe workspace must keep at least one admin, and platform-managed agents (the AI agent) cannot be removed.\n\nRate limit: 30 requests per minute.",
+        "operationId": "removeAgent",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/agentId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agent removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Removing the last admin, or a platform-managed agent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "LAST_ADMIN",
+                    "message": "The workspace must keep at least one admin"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/AgentNotFound"
+          }
+        }
+      }
+    },
     "/api/v1/conversations/{conversationId}/assign": {
       "post": {
         "summary": "Assign an agent",
@@ -96,7 +385,7 @@
                 "properties": {
                   "agentId": {
                     "type": "string",
-                    "description": "ID of the agent to assign, or `ai` to assign the workspace's AI agent.",
+                    "description": "ID of the agent to assign (list agents with `GET /api/v1/agents`), or `ai` to assign the workspace's AI agent.",
                     "example": "cmbxgwq1e0000ph01i0j1k2l3"
                   }
                 }
@@ -265,6 +554,16 @@
       }
     },
     "parameters": {
+      "agentId": {
+        "name": "agentId",
+        "in": "path",
+        "required": true,
+        "description": "ID of the agent. List agents with `GET /api/v1/agents` to find it.",
+        "schema": {
+          "type": "string",
+          "example": "cmbxgwq1e0000ph01i0j1k2l3"
+        }
+      },
       "conversationId": {
         "name": "conversationId",
         "in": "path",
@@ -288,6 +587,22 @@
               "error": {
                 "code": "INVALID_API_TOKEN",
                 "message": "Invalid or revoked API token"
+              }
+            }
+          }
+        }
+      },
+      "AgentNotFound": {
+        "description": "Agent is not an active member of this workspace",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": {
+                "code": "AGENT_NOT_FOUND",
+                "message": "Agent not found in this workspace"
               }
             }
           }
@@ -341,6 +656,46 @@
                 }
               }
             }
+          }
+        }
+      },
+      "Agent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Agent ID — use it for assignment.",
+            "example": "cmbxgwq1e0000ph01i0j1k2l3"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "sara@acme.com"
+          },
+          "nickname": {
+            "type": "string",
+            "description": "Display name shown in conversations.",
+            "example": "sara"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["agent", "admin", "ai"],
+            "description": "Workspace role. The workspace AI identity is reported as `ai`.",
+            "example": "agent"
+          },
+          "isOnline": {
+            "type": "boolean",
+            "example": true
+          },
+          "lastSeen": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-12T10:25:00.000Z"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-05-02T08:14:00.000Z"
           }
         }
       },
