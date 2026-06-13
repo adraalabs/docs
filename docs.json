@@ -2,6 +2,9 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Adraa Inbox",
+  "icons": {
+    "library": "fontawesome"
+  },
   "colors": {
     "primary": "#0A0A0A",
     "light": "#E4E4E7",
@@ -16,6 +19,46 @@
           "index",
           "quickstart",
           "authentication"
+        ]
+      },
+      {
+        "group": "Guide",
+        "pages": [
+          "guide/overview",
+          {
+            "group": "Channels",
+            "pages": [
+              "guide/channels",
+              "guide/whatsapp",
+              "guide/instagram",
+              "guide/email",
+              "guide/web-widget"
+            ]
+          },
+          {
+            "group": "Inbox",
+            "pages": [
+              "guide/inbox",
+              "guide/contacts"
+            ]
+          },
+          {
+            "group": "Automation & AI",
+            "pages": [
+              "guide/flows",
+              "guide/ai-replies",
+              "guide/knowledge-base",
+              "guide/templates"
+            ]
+          },
+          {
+            "group": "Workspace",
+            "pages": [
+              "guide/team",
+              "guide/analytics",
+              "guide/billing"
+            ]
+          }
         ]
       },
       {

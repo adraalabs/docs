@@ -1,0 +1,38 @@
+---
+title: "Email"
+description: "Turn email sent to your domain into conversations and reply from your own address."
+icon: "envelope"
+---
+
+Connect your domain so email sent to addresses like `support@yourcompany.com` becomes conversations in the inbox, and replies go back out from your own domain.
+
+## Connect a domain
+
+<Steps>
+  <Step title="Open email settings">
+    In the agent console, go to **Settings → Channels → Email**.
+  </Step>
+  <Step title="Add your domain">
+    Enter the domain you send and receive support email from, for example
+    `yourcompany.com`.
+  </Step>
+  <Step title="Add the DNS records">
+    Add the DNS records shown (for domain verification and sending
+    authentication). Verification completes once the records propagate.
+  </Step>
+</Steps>
+
+Once verified, inbound email to your connected addresses opens conversations, and agent replies are sent from your domain so they thread correctly in the customer's mailbox.
+
+## Routing inbound email
+
+You can route email sent to a specific address to a group of agents. Pair an address such as `billing@yourcompany.com` with an [agent group](/guide/team#agent-groups) so those conversations land with the right team.
+
+## Conversations from email
+
+Email conversations carry a subject line, shown as the conversation title. Replies reuse the original threading headers so they stay in the same thread on the customer's side.
+
+<Note>
+  Email replies are sent from the address the customer originally wrote to when
+  it can be determined, falling back to your domain's default sending address.
+</Note>

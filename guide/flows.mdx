@@ -1,0 +1,42 @@
+---
+title: "Flows"
+description: "Automate replies and routing with a visual flow builder."
+icon: "diagram-project"
+---
+
+Flows automate what happens when a conversation comes in — sending replies, routing to the right team, collecting information, or calling your own systems — without an agent doing it by hand.
+
+Build flows in the agent console under **Flows**.
+
+## How a flow runs
+
+A flow has a **trigger** that starts it and a series of **nodes** connected together. When a conversation matches a trigger, the flow runs node by node, following the connections until it finishes or waits for the customer's next message.
+
+## Triggers
+
+A flow can start when:
+
+- A new conversation begins
+- A customer sends a message that matches your conditions
+- An external webhook calls the flow
+
+You can scope a flow to specific channels or accounts so it only runs where you intend.
+
+## Nodes
+
+Common node types include:
+
+- **Message** — send text, a template, an interactive menu, or a location
+- **AI response** — generate a reply with the workspace AI, grounded in your [knowledge base](/guide/knowledge-base)
+- **Condition** — branch based on the message, contact data, or time of day
+- **Assignment** — hand the conversation to an agent or [agent group](/guide/team#agent-groups)
+- **Delay** — wait before continuing
+- **Webhook** — call an external URL and use the response later in the flow
+
+## Collecting metadata
+
+Flows can save what they learn about a customer into [custom fields](/guide/contacts#custom-metadata) on the contact, so the data is available to your team and in later flows.
+
+## Testing
+
+Use the webhook test tools in the flow builder to send a sample payload and confirm a webhook-triggered flow behaves as expected before publishing.
