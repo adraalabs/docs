@@ -1,18 +1,18 @@
 ---
 title: "Weekly recap: June 8–13, 2026"
-description: "Everything that shipped this week, grouped by new features, updates, and fixes."
+description: "Everything that shipped this week in Adraa Inbox — grouped by new features, updates, and fixes."
 ---
 
-A quick recap of what landed in Adraa Inbox this week.
+A big week for Adraa Inbox: the **public REST API** is live, so you can drive most of your workspace from your own systems — CRMs, internal tools, and automations.
 
 ## New features
 
 - **Public REST API.** A versioned REST API at `https://api.inbox.adraa.ai`, authenticated with workspace API tokens. Start with the [API introduction](/api-reference/introduction).
 - **Workspace API tokens.** Admins can create and manage tokens in **Settings → API**. See the [authentication guide](/authentication).
+- **Verify token endpoint.** Confirm a token works before wiring up an integration with `GET /api/v1/me`.
 - **Conversations API.** List conversations with cursor pagination and console-style filters, assign teammates or the workspace AI agent, and post messages into a conversation from your own systems.
 - **Contacts API.** List and filter contacts with the same options as the console's Contacts page, fetch full contact profiles (identity, custom fields, flow history, and internal notes), and merge custom fields to enrich contacts from your CRM.
-- **Agents API.** List, invite, update, and remove workspace agents programmatically. Removing the last admin is blocked so you can't lock yourself out.
-- **Verify token endpoint.** Confirm a token works before wiring up an integration with `GET /api/v1/me`.
+- **Agents API.** List, invite, update, and remove workspace agents programmatically — handy for syncing teammates from your HR or onboarding tools. Removing the last admin is blocked so you can't lock yourself out.
 
 ## Updates
 
