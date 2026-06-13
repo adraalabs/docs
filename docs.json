@@ -12,101 +12,116 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "pages": [
+    "tabs": [
       {
-        "group": "Getting started",
-        "pages": [
-          "index",
-          "quickstart",
-          "authentication"
-        ]
-      },
-      {
-        "group": "Guide",
-        "pages": [
-          "guide/overview",
+        "tab": "Documentation",
+        "groups": [
           {
-            "group": "Channels",
+            "group": "Getting started",
             "pages": [
-              "guide/channels",
-              "guide/whatsapp",
-              "guide/instagram",
-              "guide/email",
-              "guide/web-widget"
+              "index",
+              "quickstart",
+              "authentication"
             ]
           },
           {
-            "group": "Inbox",
+            "group": "Guide",
             "pages": [
-              "guide/inbox",
-              "guide/contacts"
-            ]
-          },
-          {
-            "group": "Automation & AI",
-            "pages": [
-              "guide/flows",
-              "guide/ai-replies",
-              "guide/knowledge-base",
-              "guide/templates"
-            ]
-          },
-          {
-            "group": "Workspace",
-            "pages": [
-              "guide/team",
-              "guide/analytics",
-              "guide/billing"
+              "guide/overview",
+              {
+                "group": "Channels",
+                "pages": [
+                  "guide/channels",
+                  "guide/whatsapp",
+                  "guide/instagram",
+                  "guide/email",
+                  "guide/web-widget"
+                ]
+              },
+              {
+                "group": "Inbox",
+                "pages": [
+                  "guide/inbox",
+                  "guide/contacts"
+                ]
+              },
+              {
+                "group": "Automation & AI",
+                "pages": [
+                  "guide/flows",
+                  "guide/ai-replies",
+                  "guide/knowledge-base",
+                  "guide/templates"
+                ]
+              },
+              {
+                "group": "Workspace",
+                "pages": [
+                  "guide/team",
+                  "guide/analytics",
+                  "guide/billing"
+                ]
+              }
             ]
           }
         ]
       },
       {
-        "group": "API reference",
-        "openapi": "/api-reference/openapi.json",
-        "pages": [
-          "api-reference/introduction",
+        "tab": "API Reference",
+        "groups": [
           {
-            "group": "Tokens",
+            "group": "API reference",
+            "openapi": "/api-reference/openapi.json",
             "pages": [
-              "GET /api/v1/me"
-            ]
-          },
-          {
-            "group": "Agents",
-            "pages": [
-              "GET /api/v1/agents",
-              "POST /api/v1/agents",
-              "GET /api/v1/agents/{agentId}",
-              "PATCH /api/v1/agents/{agentId}",
-              "DELETE /api/v1/agents/{agentId}"
-            ]
-          },
-          {
-            "group": "Contacts",
-            "pages": [
-              "GET /api/v1/contacts",
-              "GET /api/v1/contacts/{contactId}",
-              "PATCH /api/v1/contacts/{contactId}"
-            ]
-          },
-          {
-            "group": "Conversations",
-            "pages": [
-              "GET /api/v1/conversations",
-              "POST /api/v1/conversations/{conversationId}/assign",
-              "POST /api/v1/conversations/{conversationId}/messages"
+              "api-reference/introduction",
+              {
+                "group": "Tokens",
+                "pages": [
+                  "GET /api/v1/me"
+                ]
+              },
+              {
+                "group": "Agents",
+                "pages": [
+                  "GET /api/v1/agents",
+                  "POST /api/v1/agents",
+                  "GET /api/v1/agents/{agentId}",
+                  "PATCH /api/v1/agents/{agentId}",
+                  "DELETE /api/v1/agents/{agentId}"
+                ]
+              },
+              {
+                "group": "Contacts",
+                "pages": [
+                  "GET /api/v1/contacts",
+                  "GET /api/v1/contacts/{contactId}",
+                  "PATCH /api/v1/contacts/{contactId}"
+                ]
+              },
+              {
+                "group": "Conversations",
+                "pages": [
+                  "GET /api/v1/conversations",
+                  "POST /api/v1/conversations/{conversationId}/assign",
+                  "POST /api/v1/conversations/{conversationId}/messages"
+                ]
+              }
             ]
           }
         ]
       },
       {
-        "group": "Changelog",
-        "pages": [
-          "changelog/2026-06-13-week-in-review",
-          "changelog/2026-06-13",
-          "changelog/2026-06-12-agent-management",
-          "changelog/2026-06-12"
+        "tab": "Changelog",
+        "groups": [
+          {
+            "group": "Changelog",
+            "pages": [
+              "changelog/2026-06-13-week-in-review",
+              "changelog/2026-06-13",
+              "changelog/2026-06-12-agent-management",
+              "changelog/2026-06-12"
+            ]
+          }
         ]
       }
     ]
@@ -117,10 +132,6 @@
   },
   "navbar": {
     "links": [
-      {
-        "label": "Guide",
-        "href": "/guide/overview"
-      },
       {
         "label": "Support",
         "href": "mailto:support@adraa.ai"
