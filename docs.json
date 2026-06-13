@@ -147,8 +147,22 @@
     "options": [
       "copy",
       "view",
+      "assistant",
       "chatgpt",
-      "claude"
+      "claude",
+      "perplexity",
+      "grok",
+      "aistudio",
+      "devin",
+      "devin-desktop",
+      "windsurf",
+      "mcp",
+      "add-mcp",
+      "cursor",
+      "vscode",
+      "devin-mcp",
+      "download-pdf",
+      "download-spec"
     ]
   },
   "footer": {
