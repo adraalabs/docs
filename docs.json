@@ -153,14 +153,11 @@
       "perplexity",
       "grok",
       "aistudio",
-      "devin",
       "windsurf",
       "mcp",
       "add-mcp",
       "cursor",
       "vscode",
-      "devin-mcp",
-      "download-pdf",
       "download-spec"
     ]
   },
