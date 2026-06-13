@@ -117,6 +117,10 @@
   "navbar": {
     "links": [
       {
+        "label": "Guide",
+        "href": "/guide/overview"
+      },
+      {
         "label": "Support",
         "href": "mailto:support@adraa.ai"
       }
