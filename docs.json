@@ -116,6 +116,7 @@
           {
             "group": "Changelog",
             "pages": [
+              "changelog/2026-06-13-weekly-recap",
               "changelog/2026-06-13-week-in-review",
               "changelog/2026-06-13",
               "changelog/2026-06-12-agent-management",
