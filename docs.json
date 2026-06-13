@@ -68,44 +68,44 @@
       },
       {
         "tab": "API Reference",
+        "openapi": "/api-reference/openapi.json",
         "groups": [
           {
             "group": "API reference",
-            "openapi": "/api-reference/openapi.json",
             "pages": [
-              "api-reference/introduction",
-              {
-                "group": "Tokens",
-                "pages": [
-                  "GET /api/v1/me"
-                ]
-              },
-              {
-                "group": "Agents",
-                "pages": [
-                  "GET /api/v1/agents",
-                  "POST /api/v1/agents",
-                  "GET /api/v1/agents/{agentId}",
-                  "PATCH /api/v1/agents/{agentId}",
-                  "DELETE /api/v1/agents/{agentId}"
-                ]
-              },
-              {
-                "group": "Contacts",
-                "pages": [
-                  "GET /api/v1/contacts",
-                  "GET /api/v1/contacts/{contactId}",
-                  "PATCH /api/v1/contacts/{contactId}"
-                ]
-              },
-              {
-                "group": "Conversations",
-                "pages": [
-                  "GET /api/v1/conversations",
-                  "POST /api/v1/conversations/{conversationId}/assign",
-                  "POST /api/v1/conversations/{conversationId}/messages"
-                ]
-              }
+              "api-reference/introduction"
+            ]
+          },
+          {
+            "group": "Tokens",
+            "pages": [
+              "GET /api/v1/me"
+            ]
+          },
+          {
+            "group": "Agents",
+            "pages": [
+              "GET /api/v1/agents",
+              "POST /api/v1/agents",
+              "GET /api/v1/agents/{agentId}",
+              "PATCH /api/v1/agents/{agentId}",
+              "DELETE /api/v1/agents/{agentId}"
+            ]
+          },
+          {
+            "group": "Contacts",
+            "pages": [
+              "GET /api/v1/contacts",
+              "GET /api/v1/contacts/{contactId}",
+              "PATCH /api/v1/contacts/{contactId}"
+            ]
+          },
+          {
+            "group": "Conversations",
+            "pages": [
+              "GET /api/v1/conversations",
+              "POST /api/v1/conversations/{conversationId}/assign",
+              "POST /api/v1/conversations/{conversationId}/messages"
             ]
           }
         ]
